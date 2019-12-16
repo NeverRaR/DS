@@ -599,6 +599,11 @@ class Expression
 public:
 	void MakeStringToExpression(const string& s)
 	{
+		if (s.empty())
+		{
+			cout << "不允许输入空表达式！" << endl;
+			goto ERROR;
+		}
 		IsCorrect = true;
 		Infix.Clear();
 		int i;
@@ -630,15 +635,18 @@ public:
 				case '%':
 					CurElement.Symbol = 6;
 					break;
-				case '#': //这里表示一元+运算符
+				case 1: //这里表示一元+运算符
 					CurElement.Symbol = 7;
 					break;
-				case '$': //这里表示一元-运算符
+				case 2: //这里表示一元-运算符
 					CurElement.Symbol = 8;
 					break;
 				case '^'://这里表示乘方运算
 					CurElement.Symbol = 9;
 					break;
+				case '='://这里表示乘方运算
+					cout << "=符号只能出现在末尾！" << endl;
+					goto ERROR;
 				default:
 					cout << "出现非法运算符！" ;
 					goto ERROR;
@@ -882,16 +890,16 @@ string Pretreat(const string& s)
 	{
 		if (i == 0)
 		{
-			if (s[i] == '+')t[i] = '#';
-			if (s[i] == '-')t[i] = '$';
+			if (s[i] == '+')t[i] =1;
+			if (s[i] == '-')t[i] = 2;
 		}
 		else
 		{
 			if (s[i - 1] == ')' || (s[i - 1] >= '0'&&s[i - 1] <= '9')) continue;
 			else
 			{
-				if (s[i] == '+')t[i] = '#';
-				if (s[i] == '-')t[i] = '$';
+				if (s[i] == '+')t[i] = 1;
+				if (s[i] == '-')t[i] = 2;
 			}
 		}
 	}
