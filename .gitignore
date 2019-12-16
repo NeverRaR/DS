@@ -1,0 +1,13 @@
+*.suo
+*.mdb
+*.ldb
+*.sln
+*.config
+*.ipch
+*.user
+*.db
+*.filters
+*.vcxproj
+Debug/
+Release/
+obj/
