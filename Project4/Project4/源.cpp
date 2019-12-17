@@ -551,26 +551,11 @@ const ElementType & Vector<ElementType>::Back() const
 template <typename ElementType> class Stack
 {
 public:
-	void Push(ElementType E)
-	{
-		L.PushBack(E);
-	}
-	void Pop()
-	{
-		L.PopBack();
-	}
-	ElementType Top()
-	{
-		return L.Back();
-	}
-	bool Empty()
-	{
-		return L.GetSize() == 0;
-	}
-	int Size()
-	{
-		return L.GetSize();
-	}
+	void Push(ElementType E);
+	void Pop();
+	ElementType Top();
+	bool Empty();
+	int Size();
 private:
 	Vector<ElementType> L;
 };
@@ -597,284 +582,10 @@ char PriorityTable[10][10]= { //运算符优先等级 [栈顶][当前]
 class Expression
 {
 public:
-	void MakeStringToExpression(const string& s)
-	{
-		if (s.empty())
-		{
-			cout << "不允许输入空表达式！" << endl;
-			goto ERROR;
-		}
-		IsCorrect = true;
-		Infix.Clear();
-		int i;
-		for (i = 0; i < s.size();)
-		{
-			ExpressionElement CurElement;
-			if (s[i]<'0' || s[i]>'9')
-			{
-				switch (s[i])
-				{
-				case '(':
-					CurElement.Symbol = 0;
-					break;
-				case ')':
-					CurElement.Symbol = 1;
-					break;
-				case '+':
-					CurElement.Symbol = 2;
-					break;
-				case '-':
-					CurElement.Symbol = 3;
-					break;
-				case '*':
-					CurElement.Symbol = 4;
-					break;
-				case '/':
-					CurElement.Symbol = 5;
-					break;
-				case '%':
-					CurElement.Symbol = 6;
-					break;
-				case 1: //这里表示一元+运算符
-					CurElement.Symbol = 7;
-					break;
-				case 2: //这里表示一元-运算符
-					CurElement.Symbol = 8;
-					break;
-				case '^'://这里表示乘方运算
-					CurElement.Symbol = 9;
-					break;
-				case '='://这里表示乘方运算
-					cout << "=符号只能出现在末尾！" << endl;
-					goto ERROR;
-				default:
-					cout << "出现非法运算符！" ;
-					goto ERROR;
-				}
-				++i;
-			}
-			else
-			{
-				string t;
-				while (i < s.size()&& s[i]>='0' && s[i]<='9')
-				{
-					t += s[i++];
-				}
-				CurElement.IsNum = true;
-				CurElement.Num = t;
-			}
-			Infix.PushBack(CurElement);
-		}
-		return;
-	ERROR:
-		IsCorrect = false;
-	}
-	void CalculatePost()
-	{
-		if (!IsCorrect) return ;
-		Postfix.Clear();
-		Stack<ExpressionElement> s;
-		int i;
-		for (i = 0; i < Infix.GetSize(); ++i)
-		{
-			if (Infix[i].IsNum) Postfix.PushBack(Infix[i]);
-			else
-			{
-				if (s.Empty()) s.Push(Infix[i]);
-				else
-				{
-					switch (PriorityTable[s.Top().Symbol][Infix[i].Symbol])
-					{
-					case '<':
-						s.Push(Infix[i]);
-						break;
-					case '>':
-						while (!s.Empty() && PriorityTable[s.Top().Symbol][Infix[i].Symbol] == '>')
-						{
-							Postfix.PushBack(s.Top());
-							s.Pop();
-						}
-						if (Infix[i].Symbol == 1)//当前为右括号
-						{
-							if (s.Empty() || s.Top().Symbol != 0)//未找到对应的左括号
-							{
-								cout << "括号不匹配！";
-								goto ERROR;
-							}
-							else s.Pop();//找到左括号，弹出
-						}
-						else s.Push(Infix[i]);
-						break;
-					case '=':
-						cout << "出现空的括号表达式！" ;
-						goto ERROR;
-						break;
-					default:
-						cout << "未知错误！" ;
-						goto ERROR;
-					}
-				}
-			}
-		}
-		while (!s.Empty())
-		{
-			if (s.Top().Symbol == 0)
-			{
-				cout << "括号不匹配！";
-				goto ERROR;
-			}
-			Postfix.PushBack(s.Top());
-			s.Pop();
-		}
-		return;
-	ERROR:
-		IsCorrect = false;
-	}
-	void CalculateExpression()
-	{
-		CalculatePost();
-		if (!IsCorrect) return ;
-		Stack<BigInteger> ans;
-		for (int i = 0; i < Postfix.GetSize(); ++i)
-		{
-			if (Postfix[i].IsNum) ans.Push(Postfix[i].Num);
-			else
-			{
-				BigInteger t1,t2;
-				switch (Postfix[i].Symbol)
-				{
-				case 2:
-					if (ans.Empty())
-					{
-						cout << "操作符数与数字数量不匹配！" ;
-						goto ERROR;
-					}
-					t1 = ans.Top(); ans.Pop();
-					if (ans.Empty())
-					{
-						cout << "操作符数与数字数量不匹配！";
-						goto ERROR;
-					}
-					t2 = ans.Top(); ans.Pop();
-					ans.Push(t2 + t1);
-					break;
-				case 3:
-					if (ans.Empty()) 
-					{
-						cout << "操作符数与数字数量不匹配！" ;
-						goto ERROR;
-					}
-					t1 = ans.Top(); ans.Pop();
-					if (ans.Empty())
-					{
-						cout << "操作符数与数字数量不匹配！" ;
-						goto ERROR;
-					}
-					t2 = ans.Top(); ans.Pop();
-					ans.Push(t2 - t1);
-					break;
-				case 4:
-					if (ans.Empty()) 
-					{
-						cout << "操作符数与数字数量不匹配！" ;
-						goto ERROR;
-					}
-					t1 = ans.Top(); ans.Pop();
-					if (ans.Empty())
-					{
-						cout << "操作符数与数字数量不匹配！" ;
-						goto ERROR;
-					}
-					t2 = ans.Top(); ans.Pop();
-					ans.Push(t2 * t1);
-					break;
-				case 5:
-					if (ans.Empty())
-					{
-						cout << "操作符数与数字数量不匹配！" ;
-						goto ERROR;
-					}
-					t1 = ans.Top(); ans.Pop();
-					if (ans.Empty())
-					{
-						cout << "操作符数与数字数量不匹配！" ;
-						goto ERROR;
-					}
-					t2 = ans.Top(); ans.Pop();
-					if (t1.isZero())
-					{
-						cout << "发生除零操作！";
-						goto ERROR;
-					}
-					ans.Push(t2 /  t1);
-					break;
-				case 6:
-					if (ans.Empty())
-					{
-						cout << "操作符数与数字数量不匹配！";
-						goto ERROR;
-					}
-					t1 = ans.Top(); ans.Pop();
-					if (ans.Empty())
-					{
-						cout << "操作符数与数字数量不匹配！" ;
-						goto ERROR;
-					}
-					t2 = ans.Top(); ans.Pop();
-					if (t1.isZero())
-					{
-						cout << "发生除零操作！";
-						goto ERROR;
-					}
-					ans.Push(t2 %t1);
-					break;
-				case 7:
-					if (ans.Empty())
-					{
-						cout << "操作符数与数字数量不匹配！" ;
-						goto ERROR;
-					}
-					t1 = ans.Top(); ans.Pop();
-					t2.setValue("1");
-					ans.Push(t2*t1);
-					break;
-				case 8:
-					if (ans.Empty())
-					{
-						cout << "操作符数与数字数量不匹配！" ;
-						goto ERROR;
-					}
-					t1 = ans.Top(); ans.Pop();
-					t2.setValue("-1");
-					ans.Push(t2*t1);
-					break;
-				case 9:
-					if (ans.Empty())
-					{
-						cout << "操作符数与数字数量不匹配！" ;
-						goto ERROR;
-					}
-					t1 = ans.Top(); ans.Pop();
-					if (ans.Empty())
-					{
-						cout << "操作符数与数字数量不匹配！" ;
-						goto ERROR;
-					}
-					t2 = ans.Top(); ans.Pop();
-					ans.Push(t2^t1);
-					break;
-				}
-			}
-		}
-		Result = ans.Top();
-		return;
-	ERROR:
-		IsCorrect = false;
-	}
-	BigInteger GetResult()
-	{
-		return Result;
-	}
+	void MakeStringToExpression(const string& s);
+	void CalculatePost();
+	void CalculateExpression();
+	BigInteger GetResult();
 	bool IsCorrect = true;
 private:
 	
@@ -919,8 +630,8 @@ int main(void)
 		E.CalculateExpression();
 		if (E.IsCorrect)
 		{
-
-			cout << ExpressionString << "=" ;
+			if (ExpressionString.back() != '=') ExpressionString.push_back('=');
+			cout << ExpressionString;
 			cout << E.GetResult() << endl;
 			cout << "计算完毕！请问是否计算下一个表达式(输入y计算下一个表达式，否则退出程序) ？" << endl;
 			string Next;
@@ -930,4 +641,316 @@ int main(void)
 		else cout << "请重新输入！" << endl;
 	}
 	return 0;
+}
+
+inline void Expression::MakeStringToExpression(const string & s)
+{
+	if (s.empty())
+	{
+		cout << "不允许输入空表达式！" << endl;
+		goto ERROR;
+	}
+	IsCorrect = true;
+	Infix.Clear();
+	int i;
+	for (i = 0; i < s.size();)
+	{
+		ExpressionElement CurElement;
+		if (s[i]<'0' || s[i]>'9')
+		{
+			switch (s[i])
+			{
+			case '(':
+				CurElement.Symbol = 0;
+				break;
+			case ')':
+				CurElement.Symbol = 1;
+				break;
+			case '+':
+				CurElement.Symbol = 2;
+				break;
+			case '-':
+				CurElement.Symbol = 3;
+				break;
+			case '*':
+				CurElement.Symbol = 4;
+				break;
+			case '/':
+				CurElement.Symbol = 5;
+				break;
+			case '%':
+				CurElement.Symbol = 6;
+				break;
+			case 1: //这里表示一元+运算符
+				CurElement.Symbol = 7;
+				break;
+			case 2: //这里表示一元-运算符
+				CurElement.Symbol = 8;
+				break;
+			case '^'://这里表示乘方运算
+				CurElement.Symbol = 9;
+				break;
+			case '='://这里表示乘方运算
+				cout << "=符号只能出现在末尾！" << endl;
+				goto ERROR;
+			default:
+				cout << "出现非法运算符！";
+				goto ERROR;
+			}
+			++i;
+		}
+		else
+		{
+			string t;
+			while (i < s.size() && s[i] >= '0' && s[i] <= '9')
+			{
+				t += s[i++];
+			}
+			CurElement.IsNum = true;
+			CurElement.Num = t;
+		}
+		Infix.PushBack(CurElement);
+	}
+	return;
+ERROR:
+	IsCorrect = false;
+}
+
+inline void Expression::CalculatePost()
+{
+	if (!IsCorrect) return;
+	Postfix.Clear();
+	Stack<ExpressionElement> s;
+	int i;
+	for (i = 0; i < Infix.GetSize(); ++i)
+	{
+		if (Infix[i].IsNum) Postfix.PushBack(Infix[i]);
+		else
+		{
+			if (s.Empty()) s.Push(Infix[i]);
+			else
+			{
+				switch (PriorityTable[s.Top().Symbol][Infix[i].Symbol])
+				{
+				case '<':
+					s.Push(Infix[i]);
+					break;
+				case '>':
+					while (!s.Empty() && PriorityTable[s.Top().Symbol][Infix[i].Symbol] == '>')
+					{
+						Postfix.PushBack(s.Top());
+						s.Pop();
+					}
+					if (Infix[i].Symbol == 1)//当前为右括号
+					{
+						if (s.Empty() || s.Top().Symbol != 0)//未找到对应的左括号
+						{
+							cout << "括号不匹配！";
+							goto ERROR;
+						}
+						else s.Pop();//找到左括号，弹出
+					}
+					else s.Push(Infix[i]);
+					break;
+				case '=':
+					cout << "出现空的括号表达式！";
+					goto ERROR;
+					break;
+				default:
+					cout << "未知错误！";
+					goto ERROR;
+				}
+			}
+		}
+	}
+	while (!s.Empty())
+	{
+		if (s.Top().Symbol == 0)
+		{
+			cout << "括号不匹配！";
+			goto ERROR;
+		}
+		Postfix.PushBack(s.Top());
+		s.Pop();
+	}
+	return;
+ERROR:
+	IsCorrect = false;
+}
+
+inline void Expression::CalculateExpression()
+{
+	CalculatePost();
+	if (!IsCorrect) return;
+	Stack<BigInteger> ans;
+	for (int i = 0; i < Postfix.GetSize(); ++i)
+	{
+		if (Postfix[i].IsNum) ans.Push(Postfix[i].Num);
+		else
+		{
+			BigInteger t1, t2;
+			switch (Postfix[i].Symbol)
+			{
+			case 2:
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t1 = ans.Top(); ans.Pop();
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t2 = ans.Top(); ans.Pop();
+				ans.Push(t2 + t1);
+				break;
+			case 3:
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t1 = ans.Top(); ans.Pop();
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t2 = ans.Top(); ans.Pop();
+				ans.Push(t2 - t1);
+				break;
+			case 4:
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t1 = ans.Top(); ans.Pop();
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t2 = ans.Top(); ans.Pop();
+				ans.Push(t2 * t1);
+				break;
+			case 5:
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t1 = ans.Top(); ans.Pop();
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t2 = ans.Top(); ans.Pop();
+				if (t1.isZero())
+				{
+					cout << "发生除零操作！";
+					goto ERROR;
+				}
+				ans.Push(t2 / t1);
+				break;
+			case 6:
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t1 = ans.Top(); ans.Pop();
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t2 = ans.Top(); ans.Pop();
+				if (t1.isZero())
+				{
+					cout << "发生除零操作！";
+					goto ERROR;
+				}
+				ans.Push(t2 %t1);
+				break;
+			case 7:
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t1 = ans.Top(); ans.Pop();
+				t2.setValue("1");
+				ans.Push(t2*t1);
+				break;
+			case 8:
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t1 = ans.Top(); ans.Pop();
+				t2.setValue("-1");
+				ans.Push(t2*t1);
+				break;
+			case 9:
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t1 = ans.Top(); ans.Pop();
+				if (ans.Empty())
+				{
+					cout << "操作符数与数字数量不匹配！";
+					goto ERROR;
+				}
+				t2 = ans.Top(); ans.Pop();
+				ans.Push(t2^t1);
+				break;
+			}
+		}
+	}
+	Result = ans.Top();
+	return;
+ERROR:
+	IsCorrect = false;
+}
+
+inline BigInteger Expression::GetResult()
+{
+	return Result;
+}
+
+template<typename ElementType>
+inline void Stack<ElementType>::Push(ElementType E)
+{
+	L.PushBack(E);
+}
+
+template<typename ElementType>
+inline void Stack<ElementType>::Pop()
+{
+	L.PopBack();
+}
+
+template<typename ElementType>
+inline ElementType Stack<ElementType>::Top()
+{
+	return L.Back();
+}
+
+template<typename ElementType>
+inline bool Stack<ElementType>::Empty()
+{
+	return L.GetSize() == 0;
+}
+
+template<typename ElementType>
+inline int Stack<ElementType>::Size()
+{
+	return L.GetSize();
 }
