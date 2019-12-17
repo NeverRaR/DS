@@ -154,14 +154,16 @@ private:
 	int Size=0;
 	Node<ElementType>* Head, *Tail;
 };
-int main(void)
+void CustomerSeparation(Queue<int>& A, Queue<int>& B, int &CustomerNum)
 {
-	Vector<int> OutSequence;
-	int CustomerNum = 0;
+	cout << "请在一行内输入顾客的总数和每位顾客的编号:" << endl;
 	cin >> CustomerNum;
+	while (CustomerNum <= 0)
+	{
+		cout << "请输入一个正整数！" << endl;
+		cin >> CustomerNum;
+	}
 	int i;
-	Queue<int> A, B;
-	int BBusyTime = 1;
 	for (i = 0; i < CustomerNum; ++i)
 	{
 		int CurNum;
@@ -171,33 +173,51 @@ int main(void)
 		else
 			A.EnQueue(CurNum);
 	}
-	while (!A.Empty() && !B.Empty())
+}
+void ProcessBusiness(Queue<int>& A, Queue<int>& B, Vector<int> &OutSequence)
+{
+	int B_BusyTime = 1; //窗口B处理当前业务剩余时间
+	while (!A.Empty() && !B.Empty())//当两个队列都不为空时
 	{
-		OutSequence.PushBack(A.Front());
+		OutSequence.PushBack(A.Front());//A优先进入输出序列
 		A.DeQueue();
-		if ( BBusyTime == 0)
+		if (B_BusyTime == 0)//如果B已经处理完当前业务
 		{
-			OutSequence.PushBack(B.Front());
+			OutSequence.PushBack(B.Front());//队首进入输出序列
 			B.DeQueue();
-			BBusyTime = 1;
+			B_BusyTime = 1;//业务剩余时间重设为1
 		}
-		else --BBusyTime;
+		else --B_BusyTime;//如果未处理完，则将剩余时间-1
 	}
-	while (!A.Empty())
+	while (!A.Empty())//如果A不为空，则把A剩余元素全放入输出队列
 	{
 		OutSequence.PushBack(A.Front());
 		A.DeQueue();
 	}
-	while (!B.Empty())
+	while (!B.Empty())//如果B不为空，则把B剩余元素全放入输出队列
 	{
 		OutSequence.PushBack(B.Front());
 		B.DeQueue();
 	}
+}
+int main(void)
+{
+	int i;
+	int CustomerNum = 0;
+	Vector<int> OutSequence;
+	Queue<int> A, B;
+	CustomerSeparation(A, B,CustomerNum);
+	ProcessBusiness(A, B, OutSequence);
+	cout << "处理序列为：" << endl;
 	for (i = 0; i < CustomerNum-1; ++i)
 	{
 		cout << OutSequence[i] << " ";
 	}
 	cout << OutSequence[i];
+	while (getchar() != '\n') continue;//清除行末换行符
+	cout << endl << "按任意键退出！" << endl;
+	getchar();
+
 	return 0;
 }
 
