@@ -717,16 +717,29 @@ void Genealogy::Query()
 
 void Genealogy::Change()
 {
-	string s;
+	string OldName,NewName;
 	TreeNode<string, MultiNode<string>*>* Ancestor;
 	cout << "请输入要更改姓名的人的目前姓名：";
-	cin >> s;
-	while ((Ancestor = FamilyMap.Find(s)) == nullptr)
+	cin >> OldName;
+	while ((Ancestor = FamilyMap.Find(OldName)) == nullptr)
 	{
 		cout << "此人不存在！" << endl;
 		cout << "请重新输入：";
-		cin >> s;
+		cin >> OldName;
 	}
+	MultiNode<string>* AncestorNode = Ancestor->ElementValue;
+	FamilyMap.Delete(OldName);
+	cout << "请输入更改后的姓名：";
+	cin >> NewName;
+	while ( FamilyMap.Find(NewName) != nullptr)
+	{
+		cout << "此姓名已存在于家谱中！" << endl;
+		cout << "请重新输入：";
+		cin >> NewName;
+	}
+	FamilyMap.Insert(NewName, AncestorNode);
+	AncestorNode->Element = NewName;
+	cout << OldName << "已更名为" << NewName << endl;
 }
 
 MultiNode<string>* Genealogy::AddNewSon(MultiNode<string>* N, const string & E)
