@@ -225,25 +225,61 @@ ElementType Heap<ElementType, Comparator>::Top()
 	if (Empty()) return Elements[0];
 	return Elements[1];
 }
+bool Check(const Vector<int>& V)
+{
+	int i;
+	for (i = 0; i < V.GetSize(); ++i)
+	{
+		if (V[i] <= 0) return false;
+	}
+	return true;
+}
 int main(void)
 {
 	Heap<int> H;
+	Vector<int> Input;
+	cout << "请输入木块数量:" << endl;
 	int i, Num;
 	cin >> Num;
+	while (Num <= 0)
+	{
+		cout << "请输入一个正整数！" << endl;
+		cout << "请重新输入：" << endl;
+		cin >> Num;
+	}
 	int Temp, Ans=0;
+	cout << "请输入每块木块的长度：" << endl;
 	for (i = 0; i < Num; ++i)
 	{
 		cin >> Temp;
-		H.Push(Temp);
+		Input.PushBack(Temp);
+	}
+	while (Check(Input)==false)
+	{
+		cout << "木块长度中不应该存在0或负数！" << endl;
+		cout << "请重新输入：" << endl;
+		Input.Clear();
+		for (i = 0; i < Num; ++i)
+		{
+			cin >> Temp;
+			Input.PushBack(Temp);
+		}
+	}
+	for (i = 0; i < Num; ++i)
+	{
+		H.Push(Input[i]);
 	}
 	while (H.GetSize() > 1)
 	{
-		int First = H.Top(); H.Pop();
-		int Second = H.Top(); H.Pop();
-		int NewCost = First + Second;
-		Ans += NewCost;
-		H.Push(NewCost);
+		int First = H.Top(); H.Pop();//取出第一个最小值作为左子树根节点
+		int Second = H.Top(); H.Pop();//取出第二个最小值作为右子树根节点
+		int NewCost = First + Second;//左右子树根节点的和作为根节点
+		Ans += NewCost;//费用加上这个根节点的值
+		H.Push(NewCost);//将新节点推入堆中
 	}
-	cout << Ans;
+	cout << "最小花费为:" << Ans << endl;
+	while (getchar() != '\n') continue;//消除行末换行符
+	cout << "请按任意键退出！" << endl;
+	getchar();
 	return 0;
 }
