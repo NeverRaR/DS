@@ -692,7 +692,7 @@ void Genealogy::Dissolve()
 	{
 		if (AncestorNode->IsFirstSon() == false)
 			AncestorNode->Father->NextBro = AncestorNode->NextBro;
-		else AncestorNode->Father->FirstSon = nullptr;
+		else AncestorNode->Father->FirstSon = AncestorNode->NextBro;
 	}
 	FamilyTree.Destory(AncestorNode->FirstSon);
 	delete AncestorNode;
@@ -705,11 +705,10 @@ void Genealogy::Query()
 	TreeNode<string, MultiNode<string>*>* Ancestor;
 	cout << "请输入要查询第一代子孙的人的姓名：";
 	cin >> s;
-	while ((Ancestor = FamilyMap.Find(s)) == nullptr)
+    if((Ancestor = FamilyMap.Find(s)) == nullptr)
 	{
 		cout << "此人不存在！" << endl;
-		cout << "请重新输入：";
-		cin >> s;
+		return;
 	}
 	MultiNode<string>* AncestorNode = Ancestor->ElementValue;
 	Display(AncestorNode);
@@ -832,13 +831,13 @@ int main(void)
 	Genealogy MyGenealogy;
 	MyGenealogy.Menu();
 	MyGenealogy.Init();
-	string s;
+	string Cmd;
 	bool IsLooping = true;
 	while (IsLooping)
 	{
 		cout << endl << "请输入要执行的操作：";
-		cin >> s;
-		switch (s[0])
+		cin >> Cmd;
+		switch (Cmd[0])
 		{
 		case 'A':
 			MyGenealogy.Build();
