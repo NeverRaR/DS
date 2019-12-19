@@ -659,31 +659,8 @@ Graph<Tag>::~Graph()
 class STP
 {
 public:
-	void Display()
-	{
-		if (G.Vertexes.GetSize() == 1)
-		{
-			cout << Root->VertexTag << endl;
-		}
-		else
-		{
-			int Cnt = 0;
-			DFS(Root, Cnt);
-			cout << endl;
-		}
-	}
-	void DFS(Vertex<string> *Cur, int&Cnt)
-	{
-		if (Cur == nullptr) return;
-		int i;
-		for (i = 0; i < Cur->Adjacency.GetSize(); ++i)
-		{
-			if (Cnt % 8 == 0&&Cnt!=0) cout << endl;
-			cout << Cur->VertexTag << "-<" << Cur->Weight[i] << ">-" << Cur->Adjacency[i]->VertexTag << "   ";
-			Cnt++;
-			DFS(Cur->Adjacency[i], Cnt);
-		}
-	}
+	void Display();
+	void DFS(Vertex<string> *Cur, int&Cnt);
 	Vertex<string>* Root = nullptr;
 	Graph<string> G;
 };
@@ -734,7 +711,7 @@ void PowerGrid::CreatNetVertex()
 	cin >> n;
 	while (n <= 0)
 	{
-		cout << "顶点个数为负数或0！请重新输入一个正整数：";
+		cout << "顶点个数为负数或0！"<<endl<<"请重新输入一个正整数：";
 		cin >> n;
 	}
 	Vector<string> AllName;
@@ -767,7 +744,7 @@ void PowerGrid::AddEdge()
 	cin >> n;
 	while (n <= 0)
 	{
-		cout << "顶点个数为负数或0！请重新输入一个正整数：" ;
+		cout << "顶点个数为负数或0！"<<endl<<"请重新输入一个正整数：" ;
 		cin >> n;
 	}
 	string S1, S2;
@@ -867,7 +844,7 @@ void PowerGrid::BuildSTP()
 		cout << "原网络不连通！请重建网络或者添加上其他边!" << endl;
 		return;
 	}
-	cout << "生成Prim最小生成树！" << endl;
+	cout << "成功生成Prim最小生成树！" << endl;
 	STPIsReady = true;
 }
 
@@ -948,4 +925,31 @@ int main(void)
 		}
 	}
 	return 0;
+}
+
+inline void STP::Display()
+{
+	if (G.Vertexes.GetSize() == 1)
+	{
+		cout << Root->VertexTag << endl;
+	}
+	else
+	{
+		int Cnt = 0;
+		DFS(Root, Cnt);
+		cout << endl;
+	}
+}
+
+inline void STP::DFS(Vertex<string>* Cur, int & Cnt)
+{
+	if (Cur == nullptr) return;
+	int i;
+	for (i = 0; i < Cur->Adjacency.GetSize(); ++i)
+	{
+		if (Cnt % 8 == 0 && Cnt != 0) cout << endl;
+		cout << Cur->VertexTag << "-<" << Cur->Weight[i] << ">-" << Cur->Adjacency[i]->VertexTag << "   ";
+		Cnt++;
+		DFS(Cur->Adjacency[i], Cnt);
+	}
 }
