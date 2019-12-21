@@ -84,9 +84,11 @@ private:
 	int  mt[N];
 	int  index;
 };
-long long CmpCnt = 0;
+long long MoveTime = 0;
+long long CmpTime = 0;
 void Swap(int&x, int&y)
 {
+	MoveTime += 3;
 	int Tmp = x;
 	x = y;
 	y = Tmp;
@@ -94,16 +96,20 @@ void Swap(int&x, int&y)
 void BubbleSort(int V[], int Len)
 {
 	int i, j;
+	bool IsSwap = false;
 	for (i = 0; i < Len - 1; ++i)
 	{
+		IsSwap = false;
 		for (j = 0; j < Len - i - 1; j++)
 		{
-			CmpCnt++;
+			++CmpTime;
 			if (V[j + 1] < V[j])
 			{
 				Swap(V[j + 1], V[j]);
+				IsSwap = true;
 			}
 		}
+		if (IsSwap == false) break;
 	}
 }
 void SelectionSort(int V[], int Len)
@@ -115,7 +121,7 @@ void SelectionSort(int V[], int Len)
 		MinIndex = i;
 		for (j = i+1; j < Len ; j++)
 		{
-			++CmpCnt;
+			++CmpTime;
 			if (V[MinIndex] > V[j])
 			{
 				MinIndex = j;
@@ -136,18 +142,21 @@ void InsertionSort(int V[], int Len)
 		Tmp = V[i];
 		for (j = i; j > 0 && V[j - 1] > Tmp; j--)
 		{
-			++CmpCnt;
+			++CmpTime;
+			++MoveTime;
 			V[j] = V[j - 1];
 		}
 		V[j] = Tmp;
+		MoveTime++;
 	}
 }
-int Sedgewick[30] =
-{ 0, 1, 5, 19, 41, 109, 209, 505, 929, 2161, 3905, 8929, 16001, 36289,
-  64769, 146305, 260609, 587521, 1045505, 2354689, 4188161, 9427969, 16764929,
-  37730305, 67084289, 150958081, 268386305, 603906049, 1073643521 };
+
 void ShellSort(int V[], int Len)
 {
+	int Sedgewick[30] =
+	{ 0, 1, 5, 19, 41, 109, 209, 505, 929, 2161, 3905, 8929, 16001, 36289,
+	  64769, 146305, 260609, 587521, 1045505, 2354689, 4188161, 9427969, 16764929,
+	  37730305, 67084289, 150958081, 268386305, 603906049, 1073643521 };
 	int i, j;
 	int Tmp;
 	int Gap;
@@ -161,15 +170,18 @@ void ShellSort(int V[], int Len)
 			Tmp = V[i];
 			for (j = i; j >= Gap; j -= Gap)
 			{
-				++CmpCnt;
+			
 				if (Tmp < V[j - Gap])
 				{
+					++CmpTime;
+					++MoveTime;
 					V[j] = V[j - Gap];
 				}
 				else
 					break;
 			}
 			V[j] = Tmp;
+			++MoveTime;
 		}
 		Gap = Sedgewick[--GapIndex];
 	}
@@ -181,12 +193,14 @@ void PercDown(int V[], int i, int N)
 	for (Tmp = V[i]; 2 * i + 1 < N; i = Child)
 	{
 		Child = 2 * i + 1;
-		CmpCnt += 2;
+		MoveTime++;
+		CmpTime += 3;
 		if (Child != N - 1 && V[Child + 1] > V[Child]) ++Child;
 		if (Tmp < V[Child]) V[i] = V[Child];
 		else break;
 	}
 	V[i] = Tmp;
+	MoveTime++;
 }
 void HeapSort(int V[], int Len)
 {
@@ -210,17 +224,27 @@ void Merge(int V[], int TmpArray[], int Lpos, int Rpos, int RightEnd)
 
 	while (Lpos <= LeftEnd && Rpos <= RightEnd)
 	{
-		++CmpCnt;
+		++MoveTime;
+		++CmpTime;
 		if (V[Lpos] <= V[Rpos])
 			TmpArray[TmpPos++] = V[Lpos++];
 		else
 			TmpArray[TmpPos++] = V[Rpos++];
 	}
-	while (Lpos <= LeftEnd) TmpArray[TmpPos++] = V[Lpos++];
-	while (Rpos <= RightEnd)TmpArray[TmpPos++] = V[Rpos++];
+	while (Lpos <= LeftEnd)
+	{
+		TmpArray[TmpPos++] = V[Lpos++];
+		++MoveTime;
+	}
+	while (Rpos <= RightEnd)
+	{
+		TmpArray[TmpPos++] = V[Rpos++];
+		++MoveTime;
+	}
 	for (i = 0; i < NumElements; ++i)
 	{
 		V[RightEnd] = TmpArray[RightEnd];
+		++MoveTime;
 		--RightEnd;
 	}
 }
@@ -265,6 +289,7 @@ void RadixSort(int V[], int Len)
 			CurNum = V[i];
 			CurIndex = (CurNum >> CurBit) & 1;
 			Buckets[CurIndex][BucketsSize[CurIndex]++] = CurNum;
+			++MoveTime;
 		}
 		k = 0;
 		for (i = 0; i < 2; ++i)
@@ -272,6 +297,7 @@ void RadixSort(int V[], int Len)
 			for (j = 0; j < BucketsSize[i]; ++j)
 			{
 				V[k++] = Buckets[i][j];
+				++MoveTime;
 			}
 			BucketsSize[i] = 0;
 		}
@@ -285,10 +311,10 @@ void Qsort(int V[], int Left, int Right)
 	int i, j;
 	int Pivot;
 	int Center = (Left + Right) / 2;
+	CmpTime += 3;
 	if (V[Center] < V[Left]) Swap(V[Left], V[Center]);
 	if (V[Right] < V[Left]) Swap(V[Left], V[Right]);
 	if (V[Right] < V[Center]) Swap(V[Center], V[Right]);
-	CmpCnt += 3;
 	if (Left + 3 <= Right)
 	{
 	
@@ -297,8 +323,8 @@ void Qsort(int V[], int Left, int Right)
 		i = Left; j = Right - 1;
 		while (true)
 		{
-			while (V[++i] < Pivot) ++CmpCnt;
-			while (V[--j] > Pivot)++CmpCnt;
+			while (V[++i] < Pivot)++CmpTime;
+			while (V[--j] > Pivot)++CmpTime;
 			if (i < j) Swap(V[i], V[j]);
 			else break;
 		}
@@ -337,7 +363,7 @@ void Menu()
 void CreatRandomNum(int n)
 {
 	MT19937 M;
-	M.Initialize(970137);
+	M.Initialize(clock());
 	int i;
 	for (i = 0; i < n; ++i)
 	{
@@ -371,7 +397,8 @@ int main(void)
 	while (IsLooping)
 	{
 		for (i = 0; i < n; ++i) ArrayToBeSorted[i] = RandomArray[i];
-		CmpCnt = 0;
+		MoveTime = 0;
+		CmpTime = 0;
 		cout << "请选择排序算法：" << "\t";
 		cin >> Cmd;
 		string Name;
@@ -417,6 +444,7 @@ int main(void)
 		End = clock();
 		Check(ArrayToBeSorted, n);
 		cout << Name << "所用时间是：" << "\t" << End - Start << "毫秒" << endl;
-		cout << Name << "比较次数是：" << "\t" << CmpCnt << "次" << endl << endl;
+		cout << Name << "移动次数是：" << "\t" << MoveTime << "次" << endl ;
+		cout << Name << "比较次数是：" << "\t" << CmpTime << "次" << endl << endl;
 	}
 }
